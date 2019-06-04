@@ -1,1 +1,30 @@
-pwa sample
+<html>
+<head>
+  <link rel="manifest" href="./manifest.json">
+  <title>pwa sample</title>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').then(function() {
+        console.log('Service Worker Registered');
+      });
+    }
+  </script>
+  <style>
+    body {
+      text-align:center;
+      font-size: 40px;
+      color: green;
+      vertical-align: middle;
+    }
+    .image {
+      width: 80%;
+      margin: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>pwa sample</h1>
+  <a href="./page.html">LINK</a>
+</body>
+</html>

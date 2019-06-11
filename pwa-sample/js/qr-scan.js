@@ -1,21 +1,3 @@
-function openQRCamera(node) {
-  let reader = new FileReader();
-  reader.onload = function() {
-    node.value = "";
-    qrcode.callback = function(res) {
-      if(res instanceof Error) {
-        alert("QR コード画像が見つかりません。QR コードを含めた画像を指定してください。");
-      } else {
-        node.parentNode.previousElementSibling.value = res;
-        document.getElementById('qr-scan-result').innerHTML = res;
-        insertQrScanResult(res)
-      }
-    };
-    qrcode.decode(reader.result);
-  };
-  reader.readAsDataURL(node.files[0]);
-}
-
 document.addEventListener('DOMContentLoaded', function() {
   showQrScanResult()
   const video = document.createElement("video");
@@ -23,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const canvas = canvasElement.getContext("2d");
   const loadingMessage = document.getElementById("loadingMessage");
   const outputContainer = document.getElementById("output");
-  const outputMessage = document.getElementById("outputMessage");
   const outputData = document.getElementById("outputData");
   
   const drawBox = (begin, b, c, d, color) => {
@@ -74,17 +55,12 @@ document.addEventListener('DOMContentLoaded', function() {
           code.location.topLeftCorner,
           "#FF3B58"
         );
-        outputMessage.hidden = true;
         outputData.parentElement.hidden = false;
         outputData.innerText = code.data;
         insertQrScanResult(code.data);
-        if(frame) {
-          cancelAnimationFrame(frame)
-          alert('読み込み完了しました。再開するにはリロードしてください。')
-          frame = requestAnimationFrame(tick);
-        }
+        showQrScanResult()
+        alert('スキャンが完了しました。')
       } else {
-        outputMessage.hidden = false;
         outputData.parentElement.hidden = true;
       }
     }
@@ -107,7 +83,7 @@ const showQrScanResult = function() {
     store.openCursor().onsuccess = function (event) {
       let cursor = event.target.result;
       if (cursor) {
-        console.log("result:" + cursor.key + " Text: " + cursor.value.val_timestamp);
+        console.log("result:" + cursor.key + " Text: " + cursor.value.scan_text);
         let li = document.createElement('li')
         li.textContent = cursor.key
         ul.appendChild(li)
@@ -131,7 +107,6 @@ const insertQrScanResult = function(scanData) {
     let db = event.target.result;
     if(tableName){
       db.createObjectStore(tableName, {keyPath : key})
-      alert('スキャンデータを追加 テーブル名 : ' + tableName);
     }
     console.log('it is not needed.');
   }
@@ -140,41 +115,47 @@ const insertQrScanResult = function(scanData) {
     let db = event.target.result;
     let trans = db.transaction(tableName, 'readwrite');
     let store = trans.objectStore(tableName);
-    let data = {val_timestamp: scanData}
+    let data = {scan_text: scanData}
     let putRequest = store.put(data);
 
     db.close();
+    console.log('スキャンデータ追加完了');
   }
 
   dbRequest.onerror = function(event){
-      console.log('DBの接続に失敗しました。');
+    console.log('DBの接続に失敗しました。');
   }
 }
 
 const defaultDbName = 'qrDb'
 
+const initializeDB = () => {
+  createDB()
+  updateDB()
+}
+
 const createDB = function(dbName = defaultDbName){
   let dbRequest = indexedDB.open(dbName);
 
   dbRequest.onupgradeneeded = function(event){
-      let db = event.target.result;
-      alert('DB 作成完了 DB名 : ' + dbName);
+    let db = event.target.result;
+    console.log('DB 作成完了 DB名 : ' + dbName);
   }
 
   dbRequest.onsuccess = function(event){
-      alert('DB接続完了 DB名 : ' + dbName)
-      let db = event.target.result;
-      db.close();
+    console.log('DB接続完了 DB名 : ' + dbName)
+    let db = event.target.result;
+    db.close();
   }
 
   dbRequest.onerror = function(event){
-      console.log('DBの接続に失敗しました。');
+    console.log('DBの接続に失敗しました。');
   }
 }
 
 const defaultDbVer = 2
 const defaultTableName = 'qr_results'
-const defaultKey = 'val_timestamp'
+const defaultKey = 'scan_text'
 
 const updateDB = function(
     dbName = defaultDbName,
@@ -190,17 +171,19 @@ const updateDB = function(
     let db = event.target.result;
     if(tableName){
       db.createObjectStore(tableName, {keyPath : key})
-      alert('DBにテーブルを追加しました。テーブル名 : ' + tableName + ' / keyPath : ' + key);
+      console.log('DBにテーブルを追加しました。テーブル名 : ' + tableName + ' / keyPath : ' + key);
     }
+    alert('DBの作成が完了しました。')
   }
 
   dbRequest.onsuccess = function(event){
     let db = event.target.result;
     db.close();
+    alert('DBの接続が完了しました。')
   }
 
   dbRequest.onerror = function(event){
-    console.log('DBの接続に失敗しました。');
+    alert('DBの作成に失敗しました。');
   }
 }
 
@@ -212,7 +195,7 @@ const insertDB = function(dbName = defaultDbName, tableName = defaultTableName, 
     let db = event.target.result;
     if(tableName){
       db.createObjectStore(tableName, {keyPath : key})
-      alert('DBにテーブルを追加しました。テーブル名 : ' + tableName);
+      console.log('DBにテーブルを追加しました。テーブル名 : ' + tableName);
     }
     console.log('it is not needed.');
   }
@@ -221,7 +204,7 @@ const insertDB = function(dbName = defaultDbName, tableName = defaultTableName, 
     let db = event.target.result;
     let trans = db.transaction(tableName, 'readwrite');
     let store = trans.objectStore(tableName);
-    let data = {val_timestamp: 'aaabbb'}
+    let data = {scan_text: 'aaabbb'}
     let putRequest = store.put(data);
 
     db.close();
@@ -233,9 +216,13 @@ const insertDB = function(dbName = defaultDbName, tableName = defaultTableName, 
 }
 
 const deleteDB = function(dbName = defaultDbName){
+  let confirmResult = window.confirm('本当に初期化しますか？データが全て削除されます。')
+  if(!confirmResult) { return }
   let deleteRequest = indexedDB.deleteDatabase(dbName);
 
   deleteRequest.onsuccess = function(event){
+    let ul = document.getElementById('qr-scan-result-list')
+    ul.innerHTML = ''
     alert('DBの削除完了 DB名 : ' + dbName)
   }
 

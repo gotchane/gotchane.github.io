@@ -19,14 +19,11 @@
   <div id="loadingMessage">🎥 Unable to access video stream (please make sure you have a webcam enabled)</div>
   <canvas id="canvas" hidden></canvas>
   <div id="output" hidden>
-    <div id="outputMessage">No QR code detected.</div>
     <div hidden><b>Data:</b> <span id="outputData"></span></div>
   </div>
 
-  <button onclick="createDB()">データベース作成</button>
-  <button onclick="updateDB()">テーブル作成</button>
-  <button onclick="insertDB('qrDb', 'qr_results', 'val_timestamp')">データ追加</button>
-  <button onclick="deleteDB()">データベース削除</button>
+  <button onclick="initializeDB()">データベース作成</button>
+  <button onclick="deleteDB()">データベース初期化</button>
 
   <h2>Scan Results</h2>
   <ul id="qr-scan-result-list"></ul>

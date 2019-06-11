@@ -16,6 +16,82 @@ function openQRCamera(node) {
   reader.readAsDataURL(node.files[0]);
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+  showQrScanResult()
+  const video = document.createElement("video");
+  const canvasElement = document.getElementById("canvas");
+  const canvas = canvasElement.getContext("2d");
+  const loadingMessage = document.getElementById("loadingMessage");
+  const outputContainer = document.getElementById("output");
+  const outputMessage = document.getElementById("outputMessage");
+  const outputData = document.getElementById("outputData");
+  
+  const drawBox = (begin, b, c, d, color) => {
+    canvas.beginPath();
+    canvas.moveTo(begin.x, begin.y);
+    canvas.lineTo(b.x, b.y);
+    canvas.lineTo(c.x, c.y);
+    canvas.lineTo(d.x, d.y);
+    canvas.lineTo(begin.x, begin.y);
+    canvas.lineWidth = 4;
+    canvas.strokeStyle = color;
+    canvas.stroke();
+  }
+  
+  // Use facingMode: environment to attemt to get the front camera on phones
+  navigator.mediaDevices
+    .getUserMedia({ video: { facingMode: "environment", frameRate: { ideal: 2, max: 10 } } })
+    .then(function(stream) {
+      video.srcObject = stream;
+      video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
+      video.play();
+      frame = requestAnimationFrame(tick);
+    });
+  
+  const tick = () => {
+    loadingMessage.innerText = "⌛ Loading video...";
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      loadingMessage.hidden = true;
+      canvasElement.hidden = false;
+      outputContainer.hidden = false;
+  
+      canvasElement.height = video.videoHeight;
+      canvasElement.width = video.videoWidth;
+      canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+      var imageData = canvas.getImageData(
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+      );
+      var code = jsQR(imageData.data, imageData.width, imageData.height);
+      if (code) {
+        drawBox(
+          code.location.topLeftCorner,
+          code.location.topRightCorner,
+          code.location.bottomRightCorner,
+          code.location.bottomLeftCorner,
+          code.location.topLeftCorner,
+          "#FF3B58"
+        );
+        outputMessage.hidden = true;
+        outputData.parentElement.hidden = false;
+        outputData.innerText = code.data;
+        insertQrScanResult(code.data);
+        if(frame) {
+          cancelAnimationFrame(frame)
+          alert('読み込み完了しました。再開するにはリロードしてください。')
+          frame = requestAnimationFrame(tick);
+        }
+      } else {
+        outputMessage.hidden = false;
+        outputData.parentElement.hidden = true;
+      }
+    }
+    frame = requestAnimationFrame(tick);
+  }
+})
+
 const showQrScanResult = function() {
   let dbRequest = indexedDB.open(defaultDbName);
   let tableName = defaultTableName

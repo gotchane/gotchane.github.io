@@ -2,47 +2,34 @@
 <head>
   <link rel="manifest" href="./manifest.json">
   <title>QR scan sample</title>
-  <script id="qr-packed" src="https://dmla.github.io/jsqrcode/src/qr_packed.js"></script>
-  <script id="qr-scan" src="./qr-scan.js"></script>
+  <script id="qr-scan" src="./js/qr-scan.js"></script>
+  <script id="qr-jsqr" src="./js/jsQR.js"></script>
+  <link href="./css/style.css" rel="stylesheet" type="text/css" />
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js').then(function() {
+      navigator.serviceWorker.register('./js/service-worker.js').then(function() {
         console.log('Service Worker Registered');
       });
     }
   </script>
-  <style>
-    body {
-      text-align:center;
-      font-size: 40px;
-      color: green;
-      vertical-align: middle;
-    }
-    .image {
-      width: 80%;
-      margin: auto;
-      display: block;
-    }
-  </style>
 </head>
 <body>
   <h1>QR Scan Sample</h1>
 
-  <div>
-  <input type=text size=16 placeholder="Tracking Code!" class=qrcode-text><label class=qrcode-text-btn><input type=file accept="image/*" capture=environment onchange="openQRCamera(this);" tabindex=-1></label>
-  <input type=button value="Go" disabled>
+  <div id="loadingMessage">🎥 Unable to access video stream (please make sure you have a webcam enabled)</div>
+  <canvas id="canvas" hidden></canvas>
+  <div id="output" hidden>
+    <div id="outputMessage">No QR code detected.</div>
+    <div hidden><b>Data:</b> <span id="outputData"></span></div>
   </div>
-
-  <div id="qr-scan-result"></div>
-
-  <ul id="qr-scan-result-list"></ul>
 
   <button onclick="createDB()">データベース作成</button>
   <button onclick="updateDB()">テーブル作成</button>
   <button onclick="insertDB('qrDb', 'qr_results', 'val_timestamp')">データ追加</button>
   <button onclick="deleteDB()">データベース削除</button>
-  <button onclick="showQrScanResult()">リスト表示</button>
 
-  <a href="./page.html">LINK</a>
+  <h2>Scan Results</h2>
+  <ul id="qr-scan-result-list"></ul>
+
 </body>
 </html>

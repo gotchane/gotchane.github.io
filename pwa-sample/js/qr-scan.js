@@ -216,9 +216,10 @@ const insertDB = function(dbName = defaultDbName, tableName = defaultTableName, 
 }
 
 const deleteDB = function(dbName = defaultDbName){
-  let confirmResult = window.confirm('本当に初期化しますか？データが全て削除されます。')
-  if(!confirmResult) { return }
+  //let confirmResult = window.confirm('本当に初期化しますか？データが全て削除されます。')
+  //if(!confirmResult) { return }
   let deleteRequest = indexedDB.deleteDatabase(dbName);
+  let confirmResult = window.confirm('削除中')
 
   deleteRequest.onsuccess = function(event){
     let ul = document.getElementById('qr-scan-result-list')

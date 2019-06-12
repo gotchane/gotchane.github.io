@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+  initializeDB()
   showQrScanResult()
   const video = document.createElement("video");
   const canvasElement = document.getElementById("canvas");
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         outputData.parentElement.hidden = false;
         outputData.innerText = code.data;
         insertQrScanResult(code.data);
-        showQrScanResult()
+        document.getElementById("qr-scan-result").innerHTML = code.data
         alert('スキャンが完了しました。')
       } else {
         outputData.parentElement.hidden = true;
@@ -173,17 +174,16 @@ const updateDB = function(
       db.createObjectStore(tableName, {keyPath : key})
       console.log('DBにテーブルを追加しました。テーブル名 : ' + tableName + ' / keyPath : ' + key);
     }
-    alert('DBの作成が完了しました。')
   }
 
   dbRequest.onsuccess = function(event){
     let db = event.target.result;
     db.close();
-    alert('DBの接続が完了しました。')
+    alert('スキャン準備が完了しました。カメラ利用を有効にして利用開始してください。')
   }
 
   dbRequest.onerror = function(event){
-    alert('DBの作成に失敗しました。');
+    alert('スキャン準備に失敗しました。');
   }
 }
 
@@ -223,10 +223,10 @@ const deleteDB = function(dbName = defaultDbName){
   deleteRequest.onsuccess = function(event){
     let ul = document.getElementById('qr-scan-result-list')
     ul.innerHTML = ''
-    alert('DBの削除完了 DB名 : ' + dbName)
+    alert('データ削除完了')
   }
 
   deleteRequest.onerror = function(){
-    alert('DBの削除失敗 DB名 : ' + dbName)
+    alert('データ削除失敗')
   }
 }

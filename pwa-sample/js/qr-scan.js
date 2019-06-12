@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
         insertQrScanResult(code.data);
         document.getElementById("qr-scan-result").innerHTML = code.data
         alert('スキャンが完了しました。')
-        showQrScanResult()
       } else {
         outputData.parentElement.hidden = true;
       }

@@ -215,11 +215,39 @@ const insertDB = function(dbName = defaultDbName, tableName = defaultTableName, 
   }
 }
 
+const clearDB = function(dbName = defaultDbName, tableName = defaultTableName){
+  let confirmClearDB = window.confirm('本当にデータを削除しますか？')
+  if(!confirmClearDB) { return }
+
+  let dbRequest = indexedDB.open(dbName);
+
+  dbRequest.onsuccess = function(event) {
+    let db = event.target.result;
+    let trans = db.transaction(tableName, "readwrite");
+
+    trans.oncomplete = function(event) {
+      let ul = document.getElementById('qr-scan-result-list')
+      ul.innerHTML = ''
+      alert('データ削除処理完了')
+    }
+
+    trans.onerror = function(event) {
+      alert('データ削除処理失敗')
+    }
+
+    let objectStore = trans.objectStore(tableName)
+    let objectStoreRequest = objectStore.clear()
+
+    objectStoreRequest.onsuccess = function(event) {
+      console.log('データ削除成功')
+    }
+  }
+}
+
 const deleteDB = function(dbName = defaultDbName){
-  //let confirmResult = window.confirm('本当に初期化しますか？データが全て削除されます。')
-  //if(!confirmResult) { return }
+  let confirmResult = window.confirm('本当に初期化しますか？データが全て削除されます。')
+  if(!confirmResult) { return }
   let deleteRequest = indexedDB.deleteDatabase(dbName);
-  let confirmResult = window.confirm('削除中')
 
   deleteRequest.onsuccess = function(event){
     let ul = document.getElementById('qr-scan-result-list')

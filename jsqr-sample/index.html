@@ -1,0 +1,37 @@
+<html>
+<head>
+  <link rel="manifest" href="./manifest.json">
+  <title>QR scan sample</title>
+  <script id="qr-scan" src="./js/qr-scan.js"></script>
+  <script id="qr-jsqr" src="./js/jsQR.js"></script>
+  <link href="./css/style.css" rel="stylesheet" type="text/css" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./js/service-worker.js').then(function() {
+        console.log('Service Worker Registered');
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>QR Scan Sample</h1>
+
+  <h2>Scan QR Code</h2>
+  <div id="loadingMessage">🎥 Unable to access video stream (please make sure you have a webcam enabled)</div>
+  <canvas id="canvas" hidden></canvas>
+  <div id="output" hidden>
+    <div hidden><b>Data:</b> <span id="outputData"></span></div>
+  </div>
+
+  <h2>Reset Data</h2>
+  <button onclick="clearDB()">データ初期化</button>
+
+  <h2>Scan Result</h2>
+  <div id="qr-scan-result"></div>
+
+  <h2>Past Scan Results</h2>
+  <button onclick="showQrScanResult()">データ更新</button>
+  <ul id="qr-scan-result-list"></ul>
+
+</body>
+</html>

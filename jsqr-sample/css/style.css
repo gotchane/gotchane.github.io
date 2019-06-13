@@ -1,0 +1,18 @@
+body {
+  vertical-align: middle;
+}
+
+h1 {
+  font-size: 40px;
+  color: green;
+}
+
+ul li {
+  list-style: none
+}
+
+.image {
+  width: 80%;
+  margin: auto;
+  display: block;
+}

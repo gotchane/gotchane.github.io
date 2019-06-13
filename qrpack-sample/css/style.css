@@ -17,3 +17,6 @@ ul li {
   display: block;
 }
 
+.qrcode-text-wrapper {
+  margin: 20px 0;
+}

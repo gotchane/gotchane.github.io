@@ -8,6 +8,7 @@ function openQRCamera(node) {
       } else {
         insertQrScanResult(res);
         document.getElementById("qr-scan-result").innerHTML = res
+        alert("QR コードのスキャンが完了しました")
       }
     };
     qrcode.decode(reader.result);
